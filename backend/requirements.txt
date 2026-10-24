@@ -1,0 +1,48 @@
+# MD.Family Backend — Python dependencies
+# ==========================================
+# Core framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# Database
+sqlalchemy==2.0.36
+alembic==1.14.0
+psycopg2-binary==2.9.10  # PostgreSQL driver (used when DATABASE_URL points to postgres)
+aiosqlite==0.20.0        # async SQLite (for dev)
+
+# Authentication
+python-jose[cryptography]==3.3.0  # JWT
+passlib[bcrypt]==1.7.4            # password hashing
+python-multipart==0.0.20          # form data parsing
+PyJWT==2.10.1                     # Google ID token verification
+httpx==0.28.1                     # async HTTP client (Google OAuth)
+
+# Firebase Admin SDK — for FCM push notifications to child/parent devices
+firebase-admin==6.5.0
+
+# Redis (caching + pub/sub for WebSocket fan-out)
+redis==5.2.1
+fakeredis==2.26.2                 # in-memory fallback for dev
+
+# Security & utils
+python-dotenv==1.0.1
+email-validator==2.2.0
+pydantic-extra-types==2.10.1
+geopy==2.4.1                      # Haversine / geocoding helpers
+qrcode==7.4.2                     # QR code generation for pairing
+Pillow==11.0.0                    # image/icon utilities
+
+# CORS & middleware
+starlette==0.41.3
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.0
+pytest-cov==6.0.0
+httpx==0.28.1
+
+# Dev tools
+ruff==0.8.4
+mypy==1.14.0

@@ -1,0 +1,83 @@
+// MD.Family Android app module
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+}
+
+android {
+    namespace "family.md.sabry"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "family.md.sabry"
+        minSdk 23         // Android 6.0 (per Qustodio spec)
+        targetSdk 34      // Android 14 (latest)
+        versionCode 1
+        versionName "2.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // Required for Capacitor to inject JS bridge
+        ndk { abiFilters "armeabi-v7a", "arm64-v8a", "x86_64" }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            // To build a signed release, set signingConfig in android/app/build.gradle.local
+            // (not committed) — see README_ANDROID.md for instructions.
+        }
+        debug {
+            debuggable true
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    // Required by Capacitor — the web assets live under app/src/main/assets/public
+    sourceSets {
+        main {
+            assets.srcDirs = ["src/main/assets"]
+        }
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ["META-INF/INDEX.LIST", "META-INF/io.netty.versions.properties"]
+        }
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core-ktx:1.13.1"
+    implementation "androidx.appcompat:appcompat:1.7.0"
+    implementation "com.google.android.material:material:1.12.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+
+    // Capacitor core + plugins (versions resolved via Capacitor's project-level gradle)
+    implementation project(":capacitor-android")
+    implementation project(":capacitor-app")
+    implementation project(":capacitor-haptics")
+    implementation project(":capacitor-preferences")
+    implementation project(":capacitor-splash-screen")
+    implementation project(":capacitor-status-bar")
+
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test.ext:junit:1.2.1"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.6.1"
+}
+
+// Tell Capacitor which plugins are available in the app
+apply from: "capacitor.build.gradle"
+try {
+    def cap = new File("capacitor.build.gradle.local")
+    if (cap.exists()) apply from: cap
+} catch (Exception ignored) {}

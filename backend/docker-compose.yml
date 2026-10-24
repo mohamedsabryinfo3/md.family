@@ -1,0 +1,101 @@
+# MD.Family Backend — Docker Compose for local dev & production
+# ==============================================================
+#
+# Usage:
+#   docker compose up -d                # start everything
+#   docker compose logs -f api          # tail API logs
+#   docker compose exec api bash        # shell into API container
+#   docker compose down                 # stop & remove containers
+#
+# Services:
+#   api      — FastAPI backend (port 8000)
+#   postgres — PostgreSQL 16 with PostGIS
+#   redis    — Redis 7 for caching & WebSocket pub/sub
+#
+# Persisted volumes:
+#   postgres_data — database files
+#   redis_data    — redis snapshot
+#
+# First run: docker compose up -d, then visit http://localhost:8000/docs
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mdfamily-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      MDFAMILY_APP_ENV: production
+      MDFAMILY_APP_DEBUG: "false"
+      MDFAMILY_APP_HOST: 0.0.0.0
+      MDFAMILY_APP_PORT: "8000"
+      MDFAMILY_APP_LOG_LEVEL: info
+      # Connect to the postgres service defined below
+      MDFAMILY_DATABASE_URL: postgresql+psycopg2://mdfamily:${POSTGRES_PASSWORD:-mdfamily_secret}@postgres:5432/mdfamily
+      MDFAMILY_REDIS_URL: redis://redis:6379/0
+      # Override these in .env or via docker-compose.override.yml
+      MDFAMILY_JWT_SECRET: ${MDFAMILY_JWT_SECRET:-change-me-in-production}
+      MDFAMILY_GOOGLE_CLIENT_ID: ${MDFAMILY_GOOGLE_CLIENT_ID:-}
+      MDFAMILY_GOOGLE_CLIENT_SECRET: ${MDFAMILY_GOOGLE_CLIENT_SECRET:-}
+      MDFAMILY_CORS_ORIGINS: ${MDFAMILY_CORS_ORIGINS:-http://localhost:3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - mdfamily-net
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: mdfamily-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mdfamily
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mdfamily_secret}
+      POSTGRES_DB: mdfamily
+      # Better default tuning for dev (override in production)
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mdfamily-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mdfamily"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: mdfamily-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mdfamily-net
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  mdfamily-net:
+    driver: bridge

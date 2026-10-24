@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MD.Family</string>
+    <string name="title_activity_main">MD.Family</string>
+    <string name="package_name">family.md.sabry</string>
+    <string name="custom_url_scheme">family.md.sabry</string>
+</resources>

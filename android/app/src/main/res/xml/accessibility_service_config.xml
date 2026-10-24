@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MD.Family Accessibility Service configuration.
+
+  Per engineering blueprint §7 + §8 (Accessibility + privacy):
+    - We observe ONLY TYPE_WINDOW_STATE_CHANGED events (foreground app changes)
+    - We do NOT scrape UI text, passwords, or any sensitive content
+    - We do NOT retrieve window content (no `canRetrieveWindowContent`)
+    - We declare a clear description so the user knows what the service does
+    - The service is opt-in via Android Settings → Accessibility
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows"
+    android:canRetrieveWindowContent="false"
+    android:canPerformGestures="false"
+    android:canRequestEnhancedWebAccessibility="false"
+    android:canRequestFilterKeyEvents="false"
+    android:notificationTimeout="200"
+    android:packageNames=""
+    android:description="@string/accessibility_service_description" />

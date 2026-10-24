@@ -1,0 +1,57 @@
+{
+  "name": "MD.Family — سلامة رقمية للعائلة",
+  "short_name": "MD.Family",
+  "description": "تطبيق الرقابة الأبوية والسلامة الرقمية — إدارة وقت الشاشة، تصفية الويب، الموقع الآمن، وتنبيهات السلامة.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#005C9E",
+  "background_color": "#F8F9FA",
+  "categories": ["parenting", "lifestyle", "utilities", "education"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "لوحة الأسرة",
+      "short_name": "الرئيسية",
+      "description": "عرض حالة أطفالك وأجهزتهم",
+      "url": "/?screen=dashboard",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "إعدادات",
+      "short_name": "الإعدادات",
+      "description": "اللغة، المظهر، صلاحيات الأم",
+      "url": "/?screen=settings",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
+}

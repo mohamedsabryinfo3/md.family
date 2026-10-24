@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "241389173608",
+    "project_id": "md-family-b42b0",
+    "storage_bucket": "md-family-b42b0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241389173608:android:aaaf648ff4756e67bf34dd",
+        "android_client_info": {
+          "package_name": "family.md.sabry"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwjhwhUFIM8_5JJ795pnf2sYi4AYqoLyE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

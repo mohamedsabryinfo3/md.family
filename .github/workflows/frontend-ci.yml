@@ -1,0 +1,106 @@
+# MD.Family Frontend — CI pipeline
+# Runs lint + build + APK build on every push/PR.
+
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "next.config.ts"
+      - ".github/workflows/frontend-ci.yml"
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Type check
+        run: bunx tsc --noEmit
+
+      - name: Build (SSR)
+        run: bun run build
+
+      - name: Build (PWA static export)
+        run: BUILD_TARGET=android bunx next build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.mdfamily.com
+
+      - name: Upload PWA build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdfamily-pwa-out
+          path: out/
+          retention-days: 7
+
+  android-apk:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+
+      - name: Install frontend dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build PWA static export
+        run: BUILD_TARGET=android bunx next build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.mdfamily.com
+
+      - name: Sync Capacitor
+        run: |
+          npx cap add android || true
+          bash scripts/build-android.sh debug || true
+
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: MD-Family-debug.apk
+          path: download/MD-Family-*-debug.apk
+          retention-days: 14

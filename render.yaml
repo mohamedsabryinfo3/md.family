@@ -1,0 +1,95 @@
+# Render.com — MD.Family Backend deployment configuration
+# ============================================================
+# This file configures a free-tier deployment on Render.com
+# with PostgreSQL database + Redis + FastAPI backend.
+#
+# Usage:
+#   1) Push this repo to GitHub
+#   2) Go to https://dashboard.render.com → New → Blueprint
+#   3) Select your GitHub repo
+#   4) Render will read this file and create all 3 services automatically
+#   5) After deployment, you'll get a URL like: https://mdfamily-api.onrender.com
+#   6) Update the APK with: NEXT_PUBLIC_API_URL=https://mdfamily-api.onrender.com
+
+services:
+  # ─── PostgreSQL Database ────────────────────────────
+  - type: psrv
+    name: mdfamily-db
+    description: MD.Family PostgreSQL database
+    plan: free
+    ipAllowList: []  # allow all connections (will be tightened later)
+    postgresMajorVersion: 16
+    initialDatabases:
+      - mdfamily
+
+  # ─── Redis Cache ────────────────────────────────────
+  - type: redis
+    name: mdfamily-redis
+    description: MD.Family Redis cache for rate limiting + WebSocket pub/sub
+    plan: free
+    ipAllowList: []
+
+  # ─── FastAPI Backend ────────────────────────────────
+  - type: web
+    name: mdfamily-api
+    description: MD.Family Backend API — FastAPI + SQLAlchemy + JWT
+    plan: free
+    runtime: python
+    region: frankfurt  # closest to Middle East
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r backend/requirements.txt
+    startCommand: |
+      cd backend
+      alembic upgrade head
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2 --log-level info
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: MDFAMILY_APP_ENV
+        value: production
+      - key: MDFAMILY_APP_DEBUG
+        value: "false"
+      - key: MDFAMILY_APP_HOST
+        value: "0.0.0.0"
+      - key: MDFAMILY_APP_PORT
+        value: "$PORT"
+      - key: MDFAMILY_APP_LOG_LEVEL
+        value: info
+      - key: MDFAMILY_DATABASE_URL
+        fromDatabase:
+          host: mdfamily-db
+          name: mdfamily
+          property: connectionString
+      - key: MDFAMILY_REDIS_URL
+        fromService:
+          type: redis
+          name: mdfamily-redis
+          property: connectionString
+      - key: MDFAMILY_JWT_SECRET
+        generateValue: true  # Render generates a secure random secret
+      - key: MDFAMILY_JWT_ALGORITHM
+        value: HS256
+      - key: MDFAMILY_JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "43200"
+      - key: MDFAMILY_JWT_REFRESH_TOKEN_EXPIRE_DAYS
+        value: "90"
+      - key: MDFAMILY_BCRYPT_ROUNDS
+        value: "12"
+      - key: MDFAMILY_CORS_ORIGINS
+        value: "*"  # Allow all origins (tighten later with your domain)
+      - key: MDFAMILY_RATE_LIMIT_PER_MINUTE
+        value: "120"
+      # Google OAuth (optional — set these manually in Render dashboard)
+      - key: MDFAMILY_GOOGLE_CLIENT_ID
+        sync: false
+      - key: MDFAMILY_GOOGLE_CLIENT_SECRET
+        sync: false
+      # Firebase service account (paste the full JSON content in Render dashboard)
+      - key: MDFAMILY_FIREBASE_SERVICE_ACCOUNT_PATH
+        value: "/etc/secrets/firebase-service-account.json"
+      # Pairing settings
+      - key: MDFAMILY_PAIRING_CODE_TTL_SECONDS
+        value: "300"
+      - key: MDFAMILY_PAIRING_CODE_LENGTH
+        value: "6"

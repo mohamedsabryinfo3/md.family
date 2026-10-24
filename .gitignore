@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/**/__pycache__/
+backend/tests/__pycache__/
+*.pyc
+
+# Build artifacts
+.next/
+out/
+android/.gradle/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/build/
+
+# Environment & secrets
+.env
+.env.local
+backend/.env
+backend/firebase-service-account.json
+backend/mdfamily.db
+backend/test_mdfamily.db
+backend/backend.log
+dev.log
+
+# Sandbox files
+.zscripts/
+skills/
+tests/
+examples/
+upload/
+mini-services/backend/app
+mini-services/backend/.env
+mini-services/backend/alembic
+mini-services/backend/alembic.ini
+mini-services/backend/firebase-service-account.json
+
+# OS files
+.DS_Store
+Thumbs.db

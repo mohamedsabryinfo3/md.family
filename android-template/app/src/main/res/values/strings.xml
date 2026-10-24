@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MD.Family</string>
+    <string name="title_activity_main">MD.Family</string>
+    <string name="package_name">family.md.sabry</string>
+    <string name="custom_url_scheme">family.md.sabry</string>
+
+    <!-- Accessibility service description (shown to user in Android Settings) -->
+    <string name="accessibility_service_description">MD.Family يراقب التطبيق النشط على الشاشة لتطبيق سياسات الوالد (حظر التطبيقات، حدود الوقت اليومي). لا يقرأ محتوى الشاشة أو النصوص الحساسة، ويعمل فقط عند تفعيله صراحةً من قِبلك.</string>
+
+    <!-- Notification channel descriptions -->
+    <string name="notif_channel_sos">استغاثات SOS</string>
+    <string name="notif_channel_alerts">تنبيهات السلامة</string>
+    <string name="notif_channel_requests">طلبات وقت إضافي</string>
+    <string name="notif_channel_protection">حالة الحماية</string>
+    <string name="notif_channel_location">أحداث الموقع</string>
+    <string name="notif_channel_live">الجلسات الحية</string>
+    <string name="notif_channel_general">عام</string>
+    <string name="notif_channel_vpn">حالة VPN</string>
+</resources>

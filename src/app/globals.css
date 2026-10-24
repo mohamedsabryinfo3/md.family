@@ -1,0 +1,246 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   MD.Family Design System
+   - Brand: MD.Family | Internal protection engine: MD-Sabry
+   - Arabic-first (RTL) with English LTR support
+   ============================================================ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-cairo);
+  --font-mono: var(--font-geist-mono);
+  --font-arabic: var(--font-cairo);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* MD.Family brand tokens */
+  --color-trust: var(--trust);
+  --color-navy: var(--navy);
+  --color-iblue: var(--iblue);
+  --color-amber: var(--amber);
+  --color-emerald: var(--emerald);
+  --color-coral: var(--coral);
+  --color-light: var(--light);
+  --color-slate: var(--slate);
+  --color-charcoal: var(--charcoal);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.875rem;
+
+  /* MD.Family brand palette (light theme) */
+  --trust: #005C9E;
+  --navy: #0A192F;
+  --iblue: #3182CE;
+  --amber: #FF9500;
+  --emerald: #34C759;
+  --coral: #FF3B30;
+  --light: #F8F9FA;
+  --slate: #6C757D;
+  --charcoal: #1C1C1E;
+
+  --background: #F8F9FA;
+  --foreground: #0A192F;
+  --card: #FFFFFF;
+  --card-foreground: #0A192F;
+  --popover: #FFFFFF;
+  --popover-foreground: #0A192F;
+  --primary: #005C9E;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E9EEF4;
+  --secondary-foreground: #0A192F;
+  --muted: #F1F4F8;
+  --muted-foreground: #6C757D;
+  --accent: #E6F0F8;
+  --accent-foreground: #005C9E;
+  --destructive: #FF3B30;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #3182CE;
+  --chart-1: #005C9E;
+  --chart-2: #34C759;
+  --chart-3: #FF9500;
+  --chart-4: #FF3B30;
+  --chart-5: #3182CE;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0A192F;
+  --sidebar-primary: #005C9E;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #E6F0F8;
+  --sidebar-accent-foreground: #005C9E;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #3182CE;
+}
+
+.dark {
+  --trust: #3182CE;
+  --navy: #0A192F;
+  --iblue: #4A9FE8;
+  --amber: #FFB340;
+  --emerald: #4ADE80;
+  --coral: #FF6B6B;
+  --light: #1A2538;
+  --slate: #94A3B8;
+  --charcoal: #F1F5F9;
+
+  --background: #0A192F;
+  --foreground: #F1F5F9;
+  --card: #112240;
+  --card-foreground: #F1F5F9;
+  --popover: #112240;
+  --popover-foreground: #F1F5F9;
+  --primary: #3182CE;
+  --primary-foreground: #FFFFFF;
+  --secondary: #1E3A5F;
+  --secondary-foreground: #F1F5F9;
+  --muted: #1A2D47;
+  --muted-foreground: #94A3B8;
+  --accent: #1E3A5F;
+  --accent-foreground: #3182CE;
+  --destructive: #FF6B6B;
+  --border: #1E3A5F;
+  --input: #1E3A5F;
+  --ring: #3182CE;
+  --chart-1: #3182CE;
+  --chart-2: #4ADE80;
+  --chart-3: #FFB340;
+  --chart-4: #FF6B6B;
+  --chart-5: #4A9FE8;
+  --sidebar: #0A192F;
+  --sidebar-foreground: #F1F5F9;
+  --sidebar-primary: #3182CE;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1E3A5F;
+  --sidebar-accent-foreground: #3182CE;
+  --sidebar-border: #1E3A5F;
+  --sidebar-ring: #3182CE;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "cv01", "cv02";
+    text-rendering: optimizeLegibility;
+  }
+  /* Numeric & code segments stay LTR inside RTL pages */
+  [dir="rtl"] .ltr-nums {
+    direction: ltr;
+    unicode-bidi: embed;
+  }
+}
+
+/* ─── Safe Area (notch / status bar / home indicator) ─── */
+/* Applied to screens that need to respect device safe areas */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.safe-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.safe-area {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+/* For sticky headers that need to extend under the status bar */
+.safe-header {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+/* For bottom nav that needs to respect the home indicator */
+.safe-nav {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+}
+
+/* Custom scrollbar for long lists */
+.mdf-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted-foreground) transparent;
+}
+.mdf-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.mdf-scroll::-webkit-scrollbar-track { background: transparent; }
+.mdf-scroll::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 9999px;
+  opacity: 0.4;
+}
+.mdf-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--slate);
+}
+
+/* Subtle fade animation for screen transitions */
+@keyframes mdf-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.mdf-fade-in {
+  animation: mdf-fade-in 0.25s ease-out;
+}
+
+@keyframes mdf-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.45); }
+  70% { box-shadow: 0 0 0 12px rgba(255, 59, 48, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+}
+.mdf-sos-pulse {
+  animation: mdf-pulse-ring 1.6s infinite;
+}
+
+@keyframes mdf-spin-slow {
+  to { transform: rotate(360deg); }
+}
+.mdf-spin-slow {
+  animation: mdf-spin-slow 8s linear infinite;
+}
