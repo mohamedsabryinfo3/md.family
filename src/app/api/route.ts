@@ -1,7 +1,1 @@
-import { NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
-
-export async function GET() {
-  return NextResponse.json({ message: "MD.Family API", status: "ok" });
-}
+export const dynamic = "force-static"; export function GET() { return Response.json({ status: "ok" }); }

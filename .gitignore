@@ -39,3 +39,4 @@ mini-services/backend/firebase-service-account.json
 # OS files
 .DS_Store
 Thumbs.db
+.vercel
