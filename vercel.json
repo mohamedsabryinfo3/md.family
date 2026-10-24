@@ -1,7 +1,3 @@
 {
-  "functions": {
-    "backend-api/index.py": {
-      "maxDuration": 30
-    }
-  }
+  "framework": "nextjs"
 }

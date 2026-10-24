@@ -1,32 +1,316 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// MD.Family — Prisma schema for Vercel + Neon PostgreSQL
+// This replaces the FastAPI + SQLAlchemy backend with Prisma ORM
+// running natively on Vercel serverless functions.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// ─── Identity & Auth ──────────────────────────────
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String?
+  avatarColor  String   @default("#005C9E")
+  avatarInitials String @default("?")
+  authProvider String   @default("email") // email | google
+  googleSub    String?  @unique
+  locale       String   @default("ar")
+  theme        String   @default("light")
+  isActive     Boolean  @default(true)
+  isDeleted    Boolean  @default(false)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships  FamilyMembership[]
+  ownedFamilies Family[]
+  tokens       DeviceToken[]
+  auditLogs    AuditLog[]
 }
 
-model Post {
+model Family {
+  id                String   @id @default(cuid())
+  name              String
+  ownerId           String
+  familyPauseActive Boolean  @default(false)
+  safeSearchEnabled Boolean  @default(true)
+  localVpnEnabled   Boolean  @default(true)
+  isDeleted         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  owner          User              @relation(fields: [ownerId], references: [id])
+  members        FamilyMembership[]
+  children       Child[]
+  schools        School[]
+  contacts       Contact[]
+  webCategories  WebCategory[]
+  webExceptions  WebsiteException[]
+  safeZones      SafeZone[]
+  auditLogs      AuditLog[]
+  backups        BackupRecord[]
+}
+
+model FamilyMembership {
+  id                String   @id @default(cuid())
+  familyId          String
+  userId            String
+  role              String   // primary_owner | father | mother
+  motherAccessLevel String?  // full_access | custom_access | no_access
+  motherGrants      Json     @default("{}")
+  joinedAt          DateTime @default(now())
+  invitedById       String?
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, userId])
+}
+
+// ─── Children & Devices ────────────────────────────
+
+model Child {
+  id                  String   @id @default(cuid())
+  familyId            String
+  name                String
+  avatarColor         String   @default("#3182CE")
+  avatarInitials      String   @default("?")
+  birthdate           String?
+  phoneBrand          String?
+  schoolId            String?
+  screenTimeTodayMin  Int      @default(0)
+  screenTimeLimitMin  Int      @default(0)
+  sosEnabled          Boolean  @default(true)
+  isDeleted           Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  family    Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  devices   Device[]
+  alerts    SafetyAlert[]
+  activity  ActivityEvent[]
+}
+
+model Device {
+  id            String   @id @default(cuid())
+  childId       String
+  label         String
+  brand         String
+  os            String
+  osVersion     String
+  appVersion    String
+  status        String   @default("unknown") // online|offline|syncing|unknown
+  batteryPct    Int?
+  lastSeenAt    DateTime?
+  lastSyncAt    DateTime?
+  pairedAt      DateTime @default(now())
+  capabilities  Json     @default("{}")
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  child  Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+  tokens DeviceToken[]
+}
+
+// ─── Pairing ────────────────────────────────────────
+
+model PairingSession {
+  id            String   @id @default(cuid())
+  familyId      String
+  childId       String
+  deviceId      String?
+  code          String   @unique
+  status        String   @default("ready") // ready|scanning|verifying|linked|failed|expired
+  qrPayload     String
+  attempts      Int      @default(0)
+  failureReason String?
+  issuedById    String
+  expiresAt     DateTime
+  consumedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ─── App Policies ──────────────────────────────────
+
+model AppPolicy {
+  id            String   @id @default(cuid())
+  childId       String
+  packageName   String
+  appName       String
+  appCategory   String   @default("tools")
+  iconColor     String   @default("#3182CE")
+  policy        String   @default("always_allowed") // always_allowed|daily_limit|blocked
+  dailyLimitMin Int?
+  todayUsageMin Int      @default(0)
+  schedule      Json     @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([childId, packageName])
+}
+
+// ─── Web Filtering ──────────────────────────────────
+
+model WebCategory {
+  id       String @id @default(cuid())
+  familyId String
+  key      String
+  labelAr  String
+  labelEn  String
+  action   String @default("allow") // allow|alert|block
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, key])
+}
+
+model WebsiteException {
   id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
+  familyId  String
+  url       String
+  action    String // allow|alert|block
+  note      String?
+  addedAt   DateTime @default(now())
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+}
+
+// ─── Location ────────────────────────────────────────
+
+model SafeZone {
+  id            String  @id @default(cuid())
+  familyId      String
+  name          String
+  kind          String  @default("custom") // home|school|custom
+  lat           Float
+  lng           Float
+  radiusMeters  Int     @default(150)
+  address       String?
+  enabled       Boolean @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+}
+
+// ─── Alerts & Activity ──────────────────────────────
+
+model SafetyAlert {
+  id              String   @id @default(cuid())
+  childId        String
+  severity        String // low|medium|high|critical
+  category        String // cyberbullying|predator|hate|inappropriate_content|privacy_risk|screen_time
+  source          String
+  capturedAt      DateTime @default(now())
+  confidence      String   @default("medium") // low|medium|high
+  reasonAr        String
+  reasonEn        String
+  status          String   @default("pending") // pending|reviewing|ignored|resolved
+  recommendation  String   @default("review")
+  reviewedById    String?
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+}
+
+model ActivityEvent {
+  id        String   @id @default(cuid())
+  familyId  String
+  childId   String
+  type      String // app_opened|app_blocked|website_blocked|zone_enter|zone_exit|sos|...
+  labelAr   String
+  labelEn   String
+  timestamp DateTime @default(now())
+  severity  String   @default("info") // info|warning|critical
+  meta      Json     @default("{}")
+
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+}
+
+// ─── Schools & Contacts ─────────────────────────────
+
+model School {
+  id        String   @id @default(cuid())
+  familyId  String
+  name      String
+  address   String?
+  phone     String?
+  notes     String?
+  addedAt   DateTime @default(now())
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+}
+
+model Contact {
+  id         String   @id @default(cuid())
+  familyId   String
+  name       String?
+  relation   String // father|mother|grandfather|grandmother|trusted|other
+  phone      String
+  isPrimary  Boolean  @default(false)
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+}
+
+// ─── Notifications (FCM) ────────────────────────────
+
+model DeviceToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  userId      String?
+  deviceId    String?
+  platform    String   @default("android")
+  appVersion  String?
+  locale      String   @default("ar")
+  isActive    Boolean  @default(true)
+  lastUsedAt  DateTime?
+  registeredAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device Device? @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+}
+
+// ─── Backup & Audit ─────────────────────────────────
+
+model BackupRecord {
+  id        String   @id @default(cuid())
+  familyId  String
+  storage   String   @default("local")
+  sizeKb    Int
+  scope     String
+  status    String   @default("success")
+  note      String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  familyId     String
+  actorUserId  String?
+  action       String
+  ar           String
+  en           String
+  metadata     Json     @default("{}")
+  at           DateTime @default(now())
+  ipAddress    String?
+  userAgent     String?
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [actorUserId], references: [id])
 }

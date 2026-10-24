@@ -10,16 +10,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   reactStrictMode: false,
-  // Rewrite /api/v1/* to the Python serverless function
-  async rewrites() {
-    if (isAndroid) return [];
-    return [
-      {
-        source: "/api/v1/:path*",
-        destination: "/backend-api/index.py",
-      },
-    ];
-  },
+  // NO rewrites needed — API routes are native Next.js routes!
 };
 
 export default nextConfig;
