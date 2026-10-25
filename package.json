@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "next build",
+    "build": "prisma generate && prisma db push --accept-data-loss && next build",
     "build:android": "cross-env BUILD_TARGET=android next build && cap sync android",
     "build:apk": "bash scripts/build-apk.sh debug",
     "build:apk:release": "bash scripts/build-apk.sh release",
@@ -22,7 +22,8 @@
     "android:run": "bun run build:android && cap run android",
     "android:build": "bun run build:apk",
     "android:release": "bun run build:apk:release",
-    "backend": "cd backend && /home/z/.venv/bin/python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --log-level info"
+    "backend": "cd backend && /home/z/.venv/bin/python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --log-level info",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
